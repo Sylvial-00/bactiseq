@@ -10,8 +10,8 @@ process BAMDASH {
     container "community.wave.seqera.io/library/pip_bamdash:48d26bfffda77a05"
 
     input:
-        path bam_file
-        val seq_id
+        tuple val(meta), path(bam_file)
+        val seq_ids
         path bai
 
     
@@ -24,8 +24,10 @@ process BAMDASH {
 
     script:
     """
-    echo ${seq_id}
-    bamdash -b ${bam_file} -r ${seq_id} -e pdf
+    echo ${seq_ids}
+    while read -r seq_id; do
+        bamdash -b ${bam_file} -r "\$seq_id" -e "\$seq_id".pdf
+    done < ${seq_ids}
     """
 }
 

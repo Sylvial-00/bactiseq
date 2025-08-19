@@ -10,6 +10,9 @@
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 // include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_bactiseq_pipeline'
 
+include { BAMDASH } from '../modules/local/bamdash/main.nf'
+include { SAMTOOLS } from '../modules/local/samtools/main.nf'
+
 
 include { CHECKM2_PREDICT } from '../modules/nf-core/checkm2/predict/main'
 
@@ -41,9 +44,12 @@ workflow BACTISEQ {
     ch_input = Channel.fromPath("./TestDatasetNfcore/GCA_040556925.1_ASM4055692v1_genomic.fna") | map { fna ->
         [ [id: fna.baseName], fna ]  // meta + file
     }
+    ch_input = Channel.fromPath("./test_bam/HEV.bam") | map { fna ->
+        [ [id: fna.baseName], fna ]  // meta + file
+    }
     // ch_input.view()
-
-
+    SAMTOOLS(ch_input)
+    BAMDASH(ch_input, SAMTOOLS.out.seq_ids, SAMTOOLS.out.bai)
     // CHECKM2_PREDICT(ch_input, ch_db)
 
     emit:

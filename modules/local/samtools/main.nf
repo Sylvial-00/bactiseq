@@ -1,6 +1,6 @@
 
 process SAMTOOLS {
-    // tag "$meta.id"
+    tag "$meta.id"
     label 'process_single'
     //     Copy bam and bai to input directory so bamdash caqn find it
     publishDir "results/bamdash", mode: 'copy'
@@ -14,7 +14,7 @@ process SAMTOOLS {
     // container 'community.wave.seqera.io/library/samtools:1.22.1--eccb42ff8fb55509'
 
     input:
-        path bam_file
+        tuple val(meta), path(bam_file)
 
     output:
         path "seq_ids.txt" , emit: seq_ids
@@ -22,10 +22,14 @@ process SAMTOOLS {
 
     script:
     """
+    #sort the bam file for bai file
+    samtools sort "${bam_file}" -o sorted_output.bam
+    #create the bai file
+    samtools index sorted_output.bam output.bam.bai
     # create .bai
     samtools index ${bam_file}
     # Extract sequence ID from BAM file using samtools
-    samtools view -H ${bam_file} | head -5 | grep '^@SQ' | sed -n 's/.*SN:\\([^ \\t]*\\).*/\\1/p' > seq_ids.txt
+    samtools view -H ${bam_file} | grep '^@SQ' | cut -f 2 | cut -d ':' -f 2 > seq_ids.txt
     """
 }
 
