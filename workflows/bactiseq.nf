@@ -44,7 +44,7 @@ workflow BACTISEQ {
     ch_input = Channel.fromPath("./TestDatasetNfcore/GCA_040556925.1_ASM4055692v1_genomic.fna") | map { fna ->
         [ [id: fna.baseName], fna ]  // meta + file
     }
-    ch_input = Channel.fromPath("./test_bam/HEV.bam") | map { fna ->
+    ch_input = Channel.fromPath("./test_bam/Test.bam") | map { fna ->
         [ [id: fna.baseName], fna ]  // meta + file
     }
     // ch_input.view()

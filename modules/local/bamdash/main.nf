@@ -1,7 +1,7 @@
 
 process BAMDASH {
-    label 'process_low'
-
+    label 'process_high'
+    errorStrategy 'ignore' //Probably out of memory for the bam file size given
     //  nf-core: See section in main README for further information regarding finding and adding container addresses to the section below.
     conda "${moduleDir}/environment.yml"
     // container 'community.wave.seqera.io/library/pip_bamdash:48d26bfffda77a05'
@@ -17,7 +17,8 @@ process BAMDASH {
     
     output:
         path "*_plot.html", emit: html 
-        path "*.pdf", emit: pdf
+        //PDF, jpg and png DO NOT WORK On PLATO hpc. Kaleido I think needs display server?
+        //path "*.pdf", emit: pdf 
         // path "*.jpg", emit: jpg
         // path "*.png", emit: png
 
@@ -26,7 +27,7 @@ process BAMDASH {
     """
     echo ${seq_ids}
     while read -r seq_id; do
-        bamdash -b ${bam_file} -r "\$seq_id" -e "\$seq_id".pdf
+        bamdash -b ${bam_file} -r "\$seq_id"
     done < ${seq_ids}
     """
 }
