@@ -148,7 +148,8 @@ nextflow run main.nf -profile docker -params-file params.yaml
 
 with:
 
-```yaml title="params.yaml"
+```yaml title
+# params.yaml
 input: './samplesheet.csv'
 outdir: './results/'
 polish: false
