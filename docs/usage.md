@@ -155,7 +155,7 @@ polish: false
 <...>
 ```
 
-You can also generate such "YAML"/"JSON" files via [nf-core/launch](https://nf-co.re/launch).
+You can also generate such YAML/JSON files via [nf-core/launch](https://nf-co.re/launch).
 
 ### Updating the pipeline
 
