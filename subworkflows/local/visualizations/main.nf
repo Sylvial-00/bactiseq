@@ -6,25 +6,10 @@ include { BANDAGE_IMAGE } from '../../../modules/nf-core/bandage/image/main'
 workflow VISUALIZATIONS {
 
     take:
-    ch_embl
-    ch_gfa
     ch_bam // channel: [ val(meta), [ bam ] ]
 
     main:
     ch_versions = Channel.empty()
-
-    CGVIEW(ch_embl)
-    ch_versions = ch_versions.mix(CGVIEW.out.versions)
-
-    GUNZIP_GFA(ch_gfa)
-    ch_versions = ch_versions.mix(GUNZIP_GFA.out.versions)
-    GUNZIP_GFA
-        .out
-        .gunzip
-        .filter { meta, gfa -> gfa.size() > 0 }
-        .set { gfa }
-    BANDAGE_IMAGE(gfa)
-    ch_versions    = ch_versions.mix(BANDAGE_IMAGE.out.versions.first())
 
     if (params.aligned){
         def ch_convert = ch_bam.branch { meta, long_file ->

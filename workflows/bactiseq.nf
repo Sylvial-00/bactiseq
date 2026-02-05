@@ -43,124 +43,12 @@ workflow BACTISEQ {
     def ch_all_assembly = Channel.empty()
     def ch_gfa = Channel.empty()
 
-    //For custom vis we need to collect these
-    def ch_seqkit = Channel.empty()
+    def ch_bams = Channel.from([[[id: 'testBam1'], file("/mnt/d/Sylvia_thesis_test_runs/bam_files_aligned/SRR12806637.bam")],
+    [[id:'testbam2'],  file("/mnt/d/Sylvia_thesis_test_runs/bam_files_aligned/SRR12806638.bam")],
+    [[id:'testbam3'],  file("/mnt/d/Sylvia_thesis_test_runs/bam_files_aligned/SRR12806639.bam")]])
 
-
-    DATABASEDOWNLOAD()
-
-    //PARSE THE OUTPUT/SAMPLESHEET TO START THE PIPELINE
-    def list = samplesheetToList(params.input, file("assets/schema_input.json"))
-    SAMPLESHEETFILTERING(list)
-
-
-    // ////---------------------------------------------------------
-    // ///----**************PACBIO WORKFLOW*************--------------
-    // ////---------------------------------------------------------
-    PACBIO_SUBWORKFLOW(SAMPLESHEETFILTERING.out.pacbio_reads, DATABASEDOWNLOAD.out.gambitdb,DATABASEDOWNLOAD.out.krakendb)
-    ch_all_assembly = ch_all_assembly.mix(PACBIO_SUBWORKFLOW.out.output)
-    ch_gfa = ch_gfa.mix(PACBIO_SUBWORKFLOW.out.gfa)
-    ch_versions = ch_versions.mix(PACBIO_SUBWORKFLOW.out.versions)
-    // ////++++++++++++++++++++++++++++++++++++
-    // ////++++++++++++++++++++++++++++++++++++
-
-    // ////---------------------------------------------------------
-    // ///----************** NANOPORE *************--------------
-    // ////---------------------------------------------------------
-    NANOPORE_SUBWORKFLOW(SAMPLESHEETFILTERING.out.nano_reads, DATABASEDOWNLOAD.out.gambitdb, DATABASEDOWNLOAD.out.krakendb)
-    ch_all_assembly = ch_all_assembly.mix(NANOPORE_SUBWORKFLOW.out.output)
-    ch_gfa = ch_gfa.mix(NANOPORE_SUBWORKFLOW.out.gfa)
-    ch_versions = ch_versions.mix(NANOPORE_SUBWORKFLOW.out.versions)
-    // ////++++++++++++++++++++++++++++++++++++
-    // ////++++++++++++++++++++++++++++++++++++
-
-
-    // ////---------------------------------------------------------
-    // ///----************** ILLUMINA **************--------------
-    // ////---------------------------------------------------------
-    ILLUMINA_SUBWORKFLOW(SAMPLESHEETFILTERING.out.illumina_reads, DATABASEDOWNLOAD.out.gambitdb,DATABASEDOWNLOAD.out.krakendb)
-    ch_all_assembly = ch_all_assembly.mix(ILLUMINA_SUBWORKFLOW.out.outupt)
-    ch_gfa = ch_gfa.mix(ILLUMINA_SUBWORKFLOW.out.gfa)
-    ch_versions = ch_versions.mix(ILLUMINA_SUBWORKFLOW.out.versions)
-    // ////++++++++++++++++++++++++++++++++++++
-    // ////++++++++++++++++++++++++++++++++++++
-
-    // ////---------------------------------------------------------
-    // ///----************** PRE-ASSEMBLED **************--------------
-    // ////---------------------------------------------------------
-    ASSEMBLED_SUBWORKFLOW(SAMPLESHEETFILTERING.out.assembled_con)
-    ch_all_assembly = ch_all_assembly.mix(ASSEMBLED_SUBWORKFLOW.out.output)
-    ch_assembled_done = SAMPLESHEETFILTERING.out.assembled_fin.map{meta, short1, short2, long_reads, assembly_file ->
-        [meta, file(assembly_file)]
-    }
-    ch_all_assembly = ch_all_assembly.mix(ch_assembled_done)
-    ch_versions = ch_versions.mix(ASSEMBLED_SUBWORKFLOW.out.versions)
-    ////++++++++++++++++++++++++++++++++++++
-    ////++++++++++++++++++++++++++++++++++++
-    ch_all_assembly.branch { meta, file ->
-        def filename = file.toString()
-        gz: file.endsWith('.gz') 
-        normal: true
-    }.set { branched }
-    
-    GUNZIP_FASTA(branched.gz)
-    ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
-
-    def fastas = branched.normal.mix(GUNZIP_FASTA.out.gunzip)
-    ASSEMBLY_QA(fastas, DATABASEDOWNLOAD.out.checkm2db, DATABASEDOWNLOAD.out.buscodb)
-    ch_versions = ch_versions.mix(ASSEMBLY_QA.out.versions)
-    ANNOTATION(fastas, DATABASEDOWNLOAD.out.baktadb, DATABASEDOWNLOAD.out.amrdb, DATABASEDOWNLOAD.out.carddb)
-    def ch_all_mob = ANNOTATION.out.mobsuite
-        .groupTuple()
-        .map { meta, files -> [meta, files] } 
-    
-    ch_versions = ch_versions.mix(ANNOTATION.out.versions)
-
-    VISUALIZATIONS(ANNOTATION.out.embl,ch_gfa,PACBIO_SUBWORKFLOW.out.bams)
+    VISUALIZATIONS(ch_bams)
     ch_versions = ch_versions.mix(VISUALIZATIONS.out.versions)
-
-    ///-----------------------------------------------------------------
-    ///        RUN CUSTOM VISUALIZATION ONLY AFTER ALL ANNOTATIONS ARE DONE 
-    ///                     uses .collect to get all outputs
-    ////-----------------------------------------------------------------
-    ch_seqkit = ch_seqkit.mix(PACBIO_SUBWORKFLOW.out.seqkit)
-        .mix(NANOPORE_SUBWORKFLOW.out.seqkit)
-        .mix(ILLUMINA_SUBWORKFLOW.out.seqkit)                  
-        .map{ meta, file -> file }    
-        .collect()                    
-
-    def ch_all_seqkit = ch_seqkit 
-    ch_all_seqkit.view()
-    def ch_all_bakta = ANNOTATION.out.bakta.map{
-        meta, file ->
-        file
-    }.collect()
-    ch_all_bakta.view()
-    def ch_all_rgi = ANNOTATION.out.rgi.map{
-        meta, file ->
-        file
-    }.collect()
-    ch_all_rgi.view()
-    def ch_all_amr = ANNOTATION.out.amr.map{
-        meta, file ->
-        file
-    }.collect()
-    ch_all_amr.view()
-    ORGANIZE_MOBSUITE(ch_all_mob)
-    def ch_all_organized_mob = ORGANIZE_MOBSUITE.out.directory.collect()
-    ch_all_mob.view()
-    def ch_all_virulence = ANNOTATION.out.virulence.map{
-        meta, file ->
-        file
-    }.collect()
-    ch_all_virulence.view()
-    def ch_all_mlst = ANNOTATION.out.mlst.map{
-        meta, file ->
-        file
-    }.collect()
-    ch_all_mlst.view()
-
-    CUSTOMVIS(ch_all_bakta, ch_all_rgi, ch_all_amr, ch_all_organized_mob, ch_all_virulence, ch_all_mlst, ch_all_seqkit) 
     
 
     softwareVersionsToYAML(ch_versions).collectFile(
