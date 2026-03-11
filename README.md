@@ -71,21 +71,23 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 | | 2. AMRFinderPlus database | | 3.12.8 |
 | | 3. CheckM2 database | | 14897628 |
 | | 4. RGI database | | 6.0.3 |
-| | 5. Busco database | | 5.8.3 (eukaryota_odb10) |
+| | 5. Busco database | | 5.8.3 (Bacteria_odb10) |
 | | 6. Kraken2 database | | 8gb standard Kraken2 database |
 | | 7. Gambit database | | 1.0 |
 
 ## Usage
-For usage, and how to install, our documentation will walk you through it
+For usage, and how to install, our documentation will walk you through it:
+
+[Documentation for BactiSeq](https://helmy-lab.github.io/bactiseq/)
 
 BactiSeq documentation is split into the following pages:
-- [Getting started](./docs/GettingStarted.md)
+- [Getting started](https://helmy-lab.github.io/bactiseq/GettingStarted.html)
   - An overview on the pre-requisites, and how to install and use the pipeline
-- [BactiSeq Databases](./docs/Databases.md)
+- [BactiSeq Databases](https://helmy-lab.github.io/bactiseq/Databases.html)
   - An overview on the type of databases necessary for the pipeline to run 
-- [Usage](./docs/usage.md)
+- [Usage](https://helmy-lab.github.io/bactiseq/usage.html)
   - An overview of how the pipeline works, how to run it and a description of all of the different command-line flags.
-- [Output](./docs/output.md)
+- [Output](https://helmy-lab.github.io/bactiseq/output.html)
   - An overview of the different results produced by the pipeline and how to interpret them.
 
 
@@ -147,7 +149,10 @@ We thank the following people for their extensive assistance in the development 
 
 
 ## Contributions and Support
+The primary BactiSeq pipeline was developed by Sylvia Li.
 
+**Module Development**
+- The **tinycov** (Matthey-Doret, C. (2025). Cmdoret/tinycov [Python]. https://github.com/cmdoret/tinycov) module for read coverage analysis was developed by Tazmeen Gill.
 
 ## Citations
 
