@@ -11,6 +11,8 @@ import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 from matplotlib.colors import ListedColormap
 import plotly.graph_objects as go
+from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.spatial.distance import squareform
 
 
 class showData():
@@ -156,6 +158,27 @@ class showData():
                         gene = gene.strip()
                         pa_matrix.loc[sample, gene] = 1
             return pa_matrix
+        
+        def save_sample_dendrogram(pa_matrix, title):
+            """
+            Save dendrogram to file without displaying
+            """
+            binary_data = pa_matrix.values
+            distance_matrix = pairwise_distances(binary_data, metric='jaccard')
+            linkage_matrix = linkage(distance_matrix, method='average')
+            
+            plt.figure(figsize=(12, 8))
+            dendrogram(linkage_matrix,
+                    labels=pa_matrix.index.tolist(),
+                    leaf_rotation=90,
+                    leaf_font_size=8)
+            
+            plt.title(f'Sample Dendrogram')
+            plt.xlabel('Samples')
+            plt.ylabel('Jaccard Distance')
+            plt.tight_layout()
+            plt.savefig(title + '_database_genes_dendogram.png', dpi=300, bbox_inches='tight')
+            plt.close()  # Close to free memory
 
         def plot_pa(matrix, title):
             """
@@ -172,10 +195,14 @@ class showData():
             plt.ylabel('Samples')
             plt.savefig(title + '_database_genes.png')
 
+
+        
         card_pa = create_pa_matrix(sheet, 'CARD_genes_cleaned')
         card_pa.to_csv('CARD_database_presence_absence.csv')
         amr_pa = create_pa_matrix(sheet, 'AMRplus_genes_cleaned')
         amr_pa.to_csv('AMRplus_database_presence_absence.csv')
+        save_sample_dendrogram(card_pa, 'CARD')
+        save_sample_dendrogram(amr_pa, 'AMRplus')
 
         plot_pa(card_pa, 'CARD ')
         plot_pa(amr_pa, 'AMRplus ')
