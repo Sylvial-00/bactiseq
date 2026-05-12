@@ -18,6 +18,7 @@ process CUSTOMVIS {
     path "*.png", emit: images
     path "*csv"
     path "*.html"
+    path "*.pdf"
 
     when:
     task.ext.when == null || task.ext.when
