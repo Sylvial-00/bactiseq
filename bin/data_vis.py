@@ -321,8 +321,8 @@ class showData():
         ax.set_yticks(np.arange(len(df.index)))
         ax.set_yticklabels(df.index, rotation=0, fontsize=8)
         plt.title('Genes (gene names) in common')
-        plt.savefig("Genes_in_common_all_samples(bakta).pdf")
-        plt.savefig("Genes_in_common_all_samples(bakta).png")
+        plt.savefig("Genes_in_common_all_samples(bakta).pdf", dpi=300, bbox_inches='tight')
+        plt.savefig("Genes_in_common_all_samples(bakta).png", dpi=300, bbox_inches='tight')
         # plt.show()
     def mlst_pie(self, dict):
         # Create pie chart
@@ -330,5 +330,5 @@ class showData():
         plt.pie(dict.values(), labels=dict.keys(), autopct='%1.1f%%')
         plt.title('Distribution of sequence types')
         # plt.show()
-        plt.savefig("mlst_distribution.pdf")
-        plt.savefig("mlst_distribution.png")
+        plt.savefig("mlst_distribution.pdf", dpi=300, bbox_inches='tight')
+        plt.savefig("mlst_distribution.png", dpi=300, bbox_inches='tight')
