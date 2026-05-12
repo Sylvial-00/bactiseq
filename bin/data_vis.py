@@ -12,7 +12,6 @@ import matplotlib.patches as mpatches
 from matplotlib.colors import ListedColormap
 import plotly.graph_objects as go
 from scipy.cluster.hierarchy import dendrogram, linkage
-from scipy.spatial.distance import squareform
 
 
 class showData():
@@ -44,6 +43,7 @@ class showData():
         binary_matrix.to_csv('virulence_presence_absence.csv')
         plt.title('Virulence Genes Presence/Absence')
         plt.tight_layout()
+        plt.savefig('virulence_presence_absence.pdf', dpi=300, bbox_inches='tight')
         plt.savefig('virulence_presence_absence.png', dpi=300, bbox_inches='tight')
         plt.close()
     def showReads(self, sheet):
@@ -70,6 +70,7 @@ class showData():
         ax.set_xlabel('Samples')
         ax.set_ylabel('Number of reads')
         ax.set_title('Number of Reads per Sample')
+        plt.savefig("Number_Quality_reads_per_sample.pdf")
         plt.savefig("Number_Quality_reads_per_sample.png")
         plt.show()
 
@@ -177,6 +178,7 @@ class showData():
             plt.xlabel('Samples')
             plt.ylabel('Jaccard Distance')
             plt.tight_layout()
+            plt.savefig(title + '_database_genes_dendogram.pdf', dpi=300, bbox_inches='tight')
             plt.savefig(title + '_database_genes_dendogram.png', dpi=300, bbox_inches='tight')
             plt.close()  # Close to free memory
 
@@ -193,6 +195,7 @@ class showData():
             plt.title(f'Presence-Absence: {title} AMR genes')
             plt.xlabel('Genes')
             plt.ylabel('Samples')
+            plt.savefig(title + '_database_genes.pdf')
             plt.savefig(title + '_database_genes.png')
 
 
@@ -283,6 +286,7 @@ class showData():
         ax.legend(title='Plasmid Name', bbox_to_anchor=(1.05, 1), loc='upper left', ncol=2)
 
         #plt.show()
+        plt.savefig("plasmids_per_sample.pdf")
         plt.savefig("plasmids_per_sample.png")
     def show_heatmap_similar(self, df):
         """
@@ -317,6 +321,7 @@ class showData():
         ax.set_yticks(np.arange(len(df.index)))
         ax.set_yticklabels(df.index, rotation=0, fontsize=8)
         plt.title('Genes (gene names) in common')
+        plt.savefig("Genes_in_common_all_samples(bakta).pdf")
         plt.savefig("Genes_in_common_all_samples(bakta).png")
         # plt.show()
     def mlst_pie(self, dict):
@@ -325,4 +330,5 @@ class showData():
         plt.pie(dict.values(), labels=dict.keys(), autopct='%1.1f%%')
         plt.title('Distribution of sequence types')
         # plt.show()
+        plt.savefig("mlst_distribution.pdf")
         plt.savefig("mlst_distribution.png")
