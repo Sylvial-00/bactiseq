@@ -174,7 +174,7 @@ class showData():
                     leaf_rotation=90,
                     leaf_font_size=8)
             
-            plt.title(f'Sample Dendrogram')
+            plt.title(f'{title} + AMR Sample Dendrogram')
             plt.xlabel('Samples')
             plt.ylabel('Jaccard Distance')
             plt.tight_layout()
